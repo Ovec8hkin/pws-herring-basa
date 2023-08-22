@@ -26,16 +26,12 @@ read.admb.files <- function(){
     seine.age.comp        <- PWS.ASA.dat[[19]]
     spawn.age.comp        <- PWS.ASA.dat[[20]]
     juvenile.survey       <- PWS.ASA.dat[[21]]
-    
-    disease <- data.reader(filename="PWS_ASA_disease.dat")
-    vhsv.age.comp <- disease[[1]]
-    ich.age.comp  <- disease[[5]]
+    sero.comp             <- PWS.ASA.dat[[23]]
     
     PWS.ASA.ESS.ctl <- data.reader(filename="PWS_ASA(ESS).ctl")
-    seine.ess <- PWS.ASA.ESS.ctl[[2]]
-    spawn.ess <- PWS.ASA.ESS.ctl[[3]]
-    vhsv.ess  <- PWS.ASA.ESS.ctl[[4]]
-    ich.ess   <- PWS.ASA.ESS.ctl[[5]]
+    seine.ess <- PWS.ASA.ESS.ctl[[1]]
+    spawn.ess <- PWS.ASA.ESS.ctl[[2]]
+    sero.ess  <- PWS.ASA.ESS.ctl[[3]]
     
     seine.indices         <- which(rowSums(seine.age.comp[1:nyr.tot, ])>0)
     spawnsurvey.indices   <- which(rowSums(spawn.age.comp[1:nyr.tot, ])>0)
@@ -43,8 +39,7 @@ read.admb.files <- function(){
     hydADFG.indices       <- which(adfg.hydro.survey[1:nyr.tot]>0)
     hydPWSSC.indices      <- which(pwssc.hydro.survey[1:nyr.tot]>0)
     juvenile.indices      <- which(juvenile.survey[1:nyr.tot]>0)
-    vhs.indices           <- which(apply(vhsv.age.comp, 1, function(x) any(x>=0)))
-    ich.indices           <- which(apply(ich.age.comp, 1, function(x) any(x>=0)))
+    sero.indices           <- which(apply(sero.comp, 2, function(x) any(x>=0)))
     
     model.data <- list(nyr.tot=nyr.tot,
                         nyr.fit=nyr.fit,
@@ -59,7 +54,7 @@ read.admb.files <- function(){
                         f.female.spawners=f.female.spawners[1:nyr.tot],
                         seine.ess=seine.ess,
                         spawn.ess=spawn.ess,
-                        vhsv.ess=vhsv.ess,
+                        sero.ess=sero.ess,
                         seine.age.comp=seine.age.comp[1:nyr.tot, ],
                         spawn.age.comp=spawn.age.comp[1:nyr.tot, ],
                         mdm.survey=mdm.survey[1:nyr.tot],
@@ -77,9 +72,7 @@ read.admb.files <- function(){
                         egg.add=egg.add,
                         juvenile.survey=juvenile.survey[1:nyr.tot],
                         juvenile.indices=juvenile.indices,
-                        vhsv.age.comp=vhsv.age.comp[1:nyr.tot, ],
-                        vhs.indices=vhs.indices,
-                        ich.age.comp=ich.age.comp[1:nyr.tot, ],
-                        ich.indices=ich.indices)
+                        sero.comp = sero.comp[1:nyr.tot,],
+                        sero.indices = sero.indices)
     return(model.data)
 }
