@@ -11,11 +11,11 @@ library(doParallel)
 library(tidyverse)
 library(icesAdvice)
 setwd(here::here())
-source("functions/data_reader.R")
-source("functions/fun_write_dat.R")
-source("functions/run_basa.R")
+source(file=file.path(here::here(), "functions/fun_read_dat.R"))
+source(file=file.path(here::here(), "functions/fun_write_dat.R"))
+source(file=file.path(here::here(), "functions/run_basa.R"))
 
-n.peels <- 15
+n.peels <- 5
 main.basa.directory <- paste0(here::here("model/"))
 
 run.parallel <- FALSE
@@ -32,21 +32,24 @@ run.retropspective <- function(i, ...){
     
     if(!file.exists("mcmc_out/PFRBiomass.csv")){
         print(paste("mcmc_out directory does not exist in", new.dir.name))
-        file.symlink(paste0(main.basa.directory, "PWS_ASA.tpl"), ".")
+        file.symlink(paste0(main.basa.directory, "PWS_ASA.TPL"), ".")
         file.symlink(paste0(main.basa.directory, "PWS_ASA(par).ctl"), ".")
+        file.symlink(paste0(main.basa.directory, "PWS_ASA(phases).ctl"), ".")
+        file.symlink(paste0(main.basa.directory, "PWS_ASA(sim_settings).ctl"), ".")
         dat.files <- read.data.files(main.basa.directory)
         fun_write_dat(dat.files, i)
-        run.basa(paste0("retrospectives/", new.dir.name), ...)    
+        run.basa(paste0("retrospectives/", new.dir.name))    
     }else{
         print("mcmc_out directory already exists")
     }
     setwd("..")
 }
 
-create.retrospective.matrix <- function(n.peels, nyr, cyr=2022, fname="PFRBiomass.csv"){
+create.retrospective.matrix <- function(n.peels, nyr, cyr=2023, fname="PFRBiomass.csv"){
     # Aggregate biomass estimates for each retrospective run
     annual.estimate <- matrix(NA, nyr, n.peels+1)
     for(i in n.peels:1){
+        print(i)
         est <- read_csv(paste0(here::here(), "/retrospectives/", "basa_", cyr-i,"/mcmc_out/", fname), col_names=FALSE, show_col_types = FALSE) %>%
                 summarise(
                     across(
@@ -58,6 +61,7 @@ create.retrospective.matrix <- function(n.peels, nyr, cyr=2022, fname="PFRBiomas
         est <- t(as.matrix(est))
         rownames(est) <- NULL
         for(j in 1:length(est)){
+            print(j)
             annual.estimate[j, i+1] <- est[j, 1]
         }
     }
@@ -91,14 +95,14 @@ if(run.parallel){
     }
     stopCluster(cluster)
 }else{
-    for(i in 6:n.peels){
-        run.retropspective(i=6, n.time=10)
+    for(i in 1:5){
+        run.retropspective(i=i)
     }
 }
 
 ########################## Analaysis and Plotting Code ###########################
 
-annual.biomass.estimate <- create.retrospective.matrix(n.peels, 43)
+annual.biomass.estimate <- create.retrospective.matrix(4, 45, cyr=2022)
 
 mohns.rho <- icesAdvice::mohn(annual.biomass.estimate, details=TRUE)
 rel.bias <- c(mohns.rho$compare[,"relbias"], NA)
@@ -111,22 +115,22 @@ peel.estimates <- rev(peel.estimates)
 
 
 # Plot retrospective plot (can also be donee with icesAdvice::mohn(..., plot=TRUE))
-rownames(annual.biomass.estimate) <- 1980:2022
+rownames(annual.biomass.estimate) <- 1980:2024
 colors <- palette(rainbow(n.peels+1))
 
-plot(1980:2022, rep(NA, 43), ylim=c(0, 150000), xlab="Year", ylab="SSB (mt)", main="Retrospective Analaysis of SSB")
+plot(1980:2024, rep(NA, 45), ylim=c(0, 150000), xlab="Year", ylab="SSB (mt)", main="Retrospective Analaysis of SSB")
 for(p in 1:n.peels){
     data <- annual.biomass.estimate[,1+p]
-    lines(1980:2022, data, col=colors[p], lwd=2)
-    points(2022-p, rev(peel.estimates)[1+p], col=colors[p], pch=19, lwd=10)
+    lines(1980:2024, data, col=colors[p], lwd=2)
+    points(2024-p, rev(peel.estimates)[1+p], col=colors[p], pch=19, lwd=10)
 }
-lines(1980:2022, annual.biomass.estimate[,1], col="black", lwd=2.3)
+lines(1980:2024, annual.biomass.estimate[,1], col="black", lwd=2.3)
 text(2019.5, 110000, paste0("Mohn's Rho: ", round(rho, 3)))
 abline(h=19958, lty=2)
 abline(h=39885, lty=2)
 
 # Fancy thing for adding the relative biases to the legend
-legs <- rep(NA, length(2017:2022))
+legs <- rep(NA, length(2018:2022))
 for(i in 1:length(legs)){
     legs[i] <- paste0(2022-n.peels-1+i, " (bias = ", round(rel.bias[i], 3), ")")
 }
