@@ -20,7 +20,7 @@ source(file=paste0(function.dir, "/init_admb_params.R"))
 # Are you running this on a PC or a Mac
 OS <- "MAC"
 
-run.basa <- function(model.dir, n.samples=2000, n.warmup=700, n.time=5){
+run.basa <- function(model.dir, n.samples=2000, n.warmup=700, n.time=60){
     # BE SURE TO CHECK YOUR DIRECTORY
     template.files <- here::here(model.dir)
     print(template.files)
@@ -58,9 +58,9 @@ run.basa <- function(model.dir, n.samples=2000, n.warmup=700, n.time=5){
     sero.ess.its  <- sero.samp.size
 
     # Change phases of the ESS in phases file to use the PWS_ASA(ESS_estimate)
-    phases <- readLines("PWS_ASA(ESS).ctl", -1)
-    phases[5] <- 1
-    writeLines(phases, "PWS_ASA(ESS).ctl")
+    ph <- readLines("PWS_ASA(phases).ctl",-1)
+    ph[4] <- 1
+    writeLines(ph,"PWS_ASA(phases).ctl")
 
     # LOOP THROUGH AND ITERATIVELY CALCULATE ESS
     convergence <- 0
@@ -208,9 +208,7 @@ run.basa <- function(model.dir, n.samples=2000, n.warmup=700, n.time=5){
                             init=inits, seeds=seeds, chains=reps,cores=reps,
                             mceval=TRUE,
                             control=list(
-                                adapt_delta=0.9,
-                                #max_treedepth=16,
-                                metric="mle"
+                                adapt_delta=0.9
                             )
                         )
     end.time <- Sys.time()

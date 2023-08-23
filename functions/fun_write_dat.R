@@ -35,16 +35,16 @@ fun_write_dat <- function(dat.files, years.to.remove){
   PWS.ASA.dat[[20]] <- PWS.ASA.dat[[20]][1:(nrow(PWS.ASA.dat[[20]])-years.to.remove),]               # seine age composition
   PWS.ASA.dat[[21]] <- PWS.ASA.dat[[21]][1:(nrow(PWS.ASA.dat[[21]])-years.to.remove),]               # spawner age composition
   PWS.ASA.dat[[22]] <- as.matrix(PWS.ASA.dat[[22]][1:(nrow(PWS.ASA.dat[[22]])-years.to.remove),])    # juvenile aerial survey
+  PWS.ASA.dat[[24]] <- PWS.ASA.dat[[24]][1:(nrow(PWS.ASA.dat[[24]])-years.to.remove),]               # spawner age composition
   
 
   write.data(PWS.ASA.dat, "PWS_ASA.dat")
 
   # Write ESS data file with actual sample sizes (fixed).
   PWS.ASA.ESS.ctl <- dat.files$PWS_ASA_ESS.ctl 
+  PWS.ASA.ESS.ctl[[1]] <- as.matrix(PWS.ASA.ESS.ctl[[1]][1:(nrow(PWS.ASA.ESS.ctl[[1]])-years.to.remove),])
   PWS.ASA.ESS.ctl[[2]] <- as.matrix(PWS.ASA.ESS.ctl[[2]][1:(nrow(PWS.ASA.ESS.ctl[[2]])-years.to.remove),])
   PWS.ASA.ESS.ctl[[3]] <- as.matrix(PWS.ASA.ESS.ctl[[3]][1:(nrow(PWS.ASA.ESS.ctl[[3]])-years.to.remove),])
-  PWS.ASA.ESS.ctl[[4]] <- as.matrix(PWS.ASA.ESS.ctl[[4]][1:(nrow(PWS.ASA.ESS.ctl[[4]])-years.to.remove),])
-  PWS.ASA.ESS.ctl[[5]] <- as.matrix(PWS.ASA.ESS.ctl[[5]][1:(nrow(PWS.ASA.ESS.ctl[[5]])-years.to.remove),])
   # Write file without headers
   write.data(PWS.ASA.ESS.ctl, "PWS_ASA(ESS).ctl")
   
@@ -67,7 +67,7 @@ fun_write_dat <- function(dat.files, years.to.remove){
   age.comp.samp.sizes.txt[[1]] <- as.matrix(age.comp.samp.sizes.txt[[1]][1:(nrow(age.comp.samp.sizes.txt[[1]])-years.to.remove),])
   age.comp.samp.sizes.txt[[2]] <- as.matrix(age.comp.samp.sizes.txt[[2]][1:(nrow(age.comp.samp.sizes.txt[[2]])-years.to.remove),])
   age.comp.samp.sizes.txt[[3]] <- as.matrix(age.comp.samp.sizes.txt[[3]][1:(nrow(age.comp.samp.sizes.txt[[3]])-years.to.remove),])
-  age.comp.samp.sizes.txt[[4]] <- as.matrix(age.comp.samp.sizes.txt[[4]][1:(nrow(age.comp.samp.sizes.txt[[4]])-years.to.remove),])
+  
   # Write file without headers
   write.table(
       rbind(" ", " ", " ", " ", age.comp.samp.sizes.txt[[1]], " ", " "),
